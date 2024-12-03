@@ -1,0 +1,12 @@
+# Define the runtime environment
+[phases]
+build = "bun install"
+start = "bun run start"
+
+[variables]
+# Optionally set environment variables here, if needed
+NODE_ENV = "production"
+
+# Specify Bun as the runtime explicitly
+[build]
+base = "bun"

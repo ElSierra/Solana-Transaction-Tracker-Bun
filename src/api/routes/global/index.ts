@@ -1,4 +1,8 @@
+import { handleErrors } from "./../../middleware/validation/handleInputValidationErrors";
+import { validateAuthGoogle } from "./../../middleware/validation/inputValidation";
 import { Router } from "express";
+import { createAccountOrLogin } from "../../controller/createAccountOrLogin";
+
 const router = Router();
 
 router.get("/", (req, res) => {
@@ -6,8 +10,11 @@ router.get("/", (req, res) => {
   res.json({ msg: "hello cruel world" });
 });
 
-router.post("/hook", (req, res) => {
-  console.log(req.body);
-});
+router.post(
+  "/auth/google",
+  validateAuthGoogle,
+  handleErrors,
+  createAccountOrLogin
+);
 
 export default router;

@@ -28,5 +28,3 @@ export const recheckBalanceAndUpdate = async (id: string) => {
     total_balance_usd: currentBalance * SOL_PRICE,
   });
 };
-
-recheckBalanceAndUpdate("1ffb662c-6dc7-4776-b86f-5f3c3344205d");

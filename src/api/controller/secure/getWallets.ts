@@ -6,6 +6,7 @@ export const getWallets = async (req: Request, res: Response) => {
   const wallets = await knex("wallets").select({
     id: "id", // Rename the "id" column to "walletId"
     emoji:"emojiId",
+    walletName: "name",
     walletBalance: "balance",
     walletAddress: "address", 
     walletBalanceUSD: "usd_balance", 

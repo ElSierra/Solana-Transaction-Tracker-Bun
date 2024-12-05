@@ -7,7 +7,9 @@ export const getWallets = async (req: Request, res: Response) => {
     id: "id", // Rename the "id" column to "walletId"
     emoji:"emojiId",
     walletBalance: "balance",
-    walletAddress: "address", // Rename the "balance" column to "walletBalance"
+    walletAddress: "address", 
+    walletBalanceUSD: "usd_balance", 
+    // Rename the "balance" column to "walletBalance"
     createdAt: "created_at", 
   }).where({
     user_id: req.user?.id,

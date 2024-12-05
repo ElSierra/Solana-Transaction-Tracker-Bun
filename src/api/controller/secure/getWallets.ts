@@ -14,6 +14,8 @@ export const getWallets = async (req: Request, res: Response) => {
 
   console.log("🚀 ~ file: getWallets.ts:15 ~ getWallets ~ balance:", balance);
   const walletWithBalance = {
+    adjustSOL: balance[0].total_balance ||0 >= balance[1].total_balance||0 ? "up" : "down",
+    adjustUSD: balance[0].total_balance_usd || 0 >= balance[1].total_balance_usd || 0 ? "up" : "down",
     prevBalance: balance[1].total_balance || 0,
     prevBalanceUSD: balance[1].total_balance_usd || 0,
     currentBalance: balance[0].total_balance || 0,

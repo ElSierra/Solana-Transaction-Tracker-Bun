@@ -3,7 +3,13 @@ import { sendResponse } from "../../../util/sendResponse";
 import type { Request, Response } from "express";
 import knex from "../../../../db/knex";
 export const getWallets = async (req: Request, res: Response) => {
-  const wallets = await knex("wallets").select("*").where({
+  const wallets = await knex("wallets").select({
+    id: "id", // Rename the "id" column to "walletId"
+    emoji:"emojiId",
+    walletBalance: "balance",
+    walletAddress: "address", // Rename the "balance" column to "walletBalance"
+    createdAt: "created_at", 
+  }).where({
     user_id: req.user?.id,
   });
   const balance = await knex("balance")

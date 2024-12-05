@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken";
 import { HttpStatusCode } from "axios";
-import { sendResponse } from "../../../../utility/sendResponse";
+import { sendResponse } from "../../../util/sendResponse";
 import type { Response, Request, NextFunction } from "express";
+import { IUser } from "../../../services/auth";
 export const blockJWT = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const token = req?.body?.token;
+  const token = req?.headers?.token;
   if (!token) {
     return sendResponse({
       res,
@@ -24,12 +25,19 @@ export const protectRoute = (
   next: NextFunction
 ) => {
   try {
-    const accessToken = req.body.token;
+    const accessToken = req.headers.token as string;
     const token = jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET as string
-    );
+    ) as IUser;
+
+    req.user = token;
+    next();
   } catch (error) {
-    next(error);
+    return sendResponse({
+      res,
+      statusCode: HttpStatusCode.Unauthorized,
+      message: "Invalid token provided",
+    });
   }
 };

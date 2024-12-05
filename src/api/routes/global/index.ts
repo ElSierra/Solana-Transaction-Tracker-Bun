@@ -1,7 +1,8 @@
+import { createAccountOrLogin } from "./../../controller/global/createAccountOrLogin";
 import { handleErrors } from "./../../middleware/validation/handleInputValidationErrors";
 import { validateAuthGoogle } from "./../../middleware/validation/inputValidation";
 import { Router } from "express";
-import { createAccountOrLogin } from "../../controller/createAccountOrLogin";
+
 
 const router = Router();
 

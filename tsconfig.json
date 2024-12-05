@@ -3,7 +3,7 @@
     "lib": ["es2023"],
     "module": "node16",
     "target": "es2022",
-
+    "typeRoots": ["src/@types", "./node_modules/@types"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -11,5 +11,6 @@
     "moduleResolution": "node16",
     "outDir": "./dist"
   },
-  "include": ["knexfile.ts", "db/knex.ts"]
+
+  "include": ["src/**/*.ts", "types/**/*.d.ts", "knexfile.ts", "db/knex.ts"]
 }

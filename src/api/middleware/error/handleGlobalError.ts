@@ -1,5 +1,5 @@
 import { NextFunction, Request } from "express";
-import { sendResponse } from "../../../../utility/sendResponse";
+import { sendResponse } from "../../../util/sendResponse";
 
 const convertCamelToSpaces = (text: string): string => {
   return text.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
@@ -11,12 +11,30 @@ export const ErrorHandler = (
   res: any,
   next?: NextFunction
 ) => {
-  //handle google oauth error
-  if (error.name === "Error") {
+  if (error.code === "23505") {
+    // Handle unique constraint violation
     return sendResponse({
       res,
       statusCode: 400,
-      message: error.message,
+      message: "Wallet already exists",
+    });
+  }
+
+  if (error.code === "22P02") {
+    // Handle invalid input
+    const errorField = convertCamelToSpaces(error.column);
+    return sendResponse({
+      res,
+      statusCode: 400,
+      message: `Invalid input for ${errorField}`,
+    });
+  }
+  if (error.code === "23503") {
+    // Handle foreign key constraint violation
+    return sendResponse({
+      res,
+      statusCode: 404,
+      message: "User not found",
     });
   }
 

@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-type accessToken = {
+export type IUser = {
   email: string;
   id: string;
 };
-export const createAccessToken = ({ email, id }: accessToken) => {
+export const createAccessToken = ({ email, id }: IUser) => {
   const token = jwt.sign(
     { email: email, id: id },
 

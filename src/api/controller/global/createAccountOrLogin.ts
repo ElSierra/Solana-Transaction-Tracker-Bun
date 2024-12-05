@@ -1,8 +1,8 @@
-import { sendResponse } from "./../../../utility/sendResponse";
+import { sendResponse } from "../../../util/sendResponse";
 import type { Response, Request, NextFunction } from "express";
-import { client } from "./../../../config/google/client";
-import knex from "../../../db/knex";
-import { createAccessToken } from "../../services/auth";
+import { client } from "./../../../../config/google/client";
+import knex from "../../../../db/knex";
+import { createAccessToken } from "../../../services/auth";
 
 export const createAccountOrLogin = async (
   req: Request,
@@ -39,10 +39,10 @@ export const createAccountOrLogin = async (
     }
 
     // Check if user exists in database
-    const user = await knex.raw(`SELECT id, name, email,picture FROM users WHERE email = ? LIMIT 1`, [
-      email,
-    ]);
-  
+    const user = await knex.raw(
+      `SELECT id, name, email,picture FROM users WHERE email = ? LIMIT 1`,
+      [email]
+    );
 
     if (user.rows.length === 0) {
       // Create user

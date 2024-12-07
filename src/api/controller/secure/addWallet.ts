@@ -4,6 +4,7 @@ import type { Response, Request, NextFunction } from "express";
 import { getWalletBalanceByUserId } from "../../../util/getWalletBalanceByUserId";
 import { sendResponse } from "../../../util/sendResponse";
 import knex from "../../../../db/knex";
+import { recheckBalanceAndUpdate } from "../../../util/recheckBalanceAndUpdate";
 
 export const addWallet = async (
   req: Request,
@@ -92,6 +93,8 @@ export const addWallet = async (
         message: "Failed to add wallet",
       });
     }
+
+    await recheckBalanceAndUpdate(id as string);
 
     res.status(201).json({
       message: "Wallet added successfully",

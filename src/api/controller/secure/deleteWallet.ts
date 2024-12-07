@@ -4,9 +4,9 @@ import { sendResponse } from "../../../util/sendResponse";
 import { HttpStatusCode } from "axios";
 import { recheckBalanceAndUpdate } from "../../../util/recheckBalanceAndUpdate";
 export const deleteWallet = async (req: Request, res: Response) => {
-  const { address } = req.body;
+  const { id } = req.body;
   const wallet = await knex("wallets").select("*").where({
-    address,
+    id,
     user_id: req.user?.id,
   });
   if (!wallet.length) {
@@ -16,7 +16,7 @@ export const deleteWallet = async (req: Request, res: Response) => {
       message: "Wallet not found",
     });
   }
-  const deleteRes = await knex("wallets").delete().where({ address });
+  const deleteRes = await knex("wallets").delete().where({ id });
 
   if (!deleteRes) {
     return sendResponse({

@@ -22,9 +22,20 @@ export const recheckBalanceAndUpdate = async (id: string) => {
   }
 
   const currentBalance = await getWalletBalanceByUserId(id);
-  await knex("balance").insert({
+
+  if (!currentBalance) {
+    throw new Error("Error getting balance");
+  }
+
+  const created = await knex("balance").insert({
     user_id: id,
     total_balance: currentBalance,
     total_balance_usd: currentBalance * SOL_PRICE,
   });
+
+  if (!created) {
+    throw new Error("Error updating balance");
+  }
+
+  return "Balance updated successfully";
 };

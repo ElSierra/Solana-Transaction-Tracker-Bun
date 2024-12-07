@@ -25,7 +25,15 @@ export const deleteWallet = async (req: Request, res: Response) => {
       message: "Error deleting wallet",
     });
   }
-  recheckBalanceAndUpdate(req.user?.id as string);
+  const balance = await recheckBalanceAndUpdate(req.user?.id as string);
+
+  if (!balance) {
+    return sendResponse({
+      res,
+      statusCode: HttpStatusCode.InternalServerError,
+      message: "Error updating balance",
+    });
+  }
   return sendResponse({
     res,
     statusCode: HttpStatusCode.Ok,

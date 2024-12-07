@@ -78,21 +78,6 @@ export const addWallet = async (
       });
     }
     //accumulate the wallets balance
-    const currentBalance = await getWalletBalanceByUserId(id as string);
-
-    const createBalance = await knex("balance").insert({
-      user_id: id,
-      total_balance: currentBalance,
-      total_balance_usd: currentBalance * SOL_PRICE,
-    });
-
-    if (!createBalance) {
-      return sendResponse({
-        res,
-        statusCode: 400,
-        message: "Failed to add wallet",
-      });
-    }
 
     await recheckBalanceAndUpdate(id as string);
 

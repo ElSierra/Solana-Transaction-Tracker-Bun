@@ -10,6 +10,11 @@ export const getWallets = async (
 ) => {
   try {
     const result = await recheckBalanceAndUpdate(req.user?.id as string);
+    console.log("🚀 ~ file: getWallets.ts:13 ~ result:", result)
+
+
+    
+    
 
     const wallets = await knex("wallets")
       .select({
@@ -24,7 +29,8 @@ export const getWallets = async (
       })
       .where({
         user_id: req.user?.id,
-      });
+      })
+      .orderBy("created_at", "desc");
     const balance = await knex("balance")
       .select("total_balance", "total_balance_usd")
       .where({ user_id: req.user?.id })

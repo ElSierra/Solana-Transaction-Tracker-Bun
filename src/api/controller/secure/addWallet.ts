@@ -14,6 +14,18 @@ export const addWallet = async (
 ) => {
   try {
     const id = req.user?.id;
+    //wallet count in total
+
+    const walletCount = await knex("wallets").count("id");
+
+    if (Number(walletCount[0]?.count) >= 25) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        message: "Sorry we are unable to add more wallets at the moment",
+      });
+    }
+
     const SOL_PRICE = await getSOLPriceUSD();
     const user = await knex.raw(
       `
@@ -81,7 +93,7 @@ export const addWallet = async (
     //accumulate the wallets balance
 
     await recheckBalanceAndUpdate(id as string);
-    await editWebHook()
+    await editWebHook();
 
     res.status(201).json({
       message: "Wallet added successfully",

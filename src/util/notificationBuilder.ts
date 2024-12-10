@@ -6,11 +6,15 @@ export const notificationBuilder = ({
   amount,
   transferOut,
   userId,
+  date,
+  walletId,
 }: {
   wallet: string;
   amount: number;
   userId: string;
   transferOut: boolean;
+  date: Date;
+  walletId: string;
 }) => {
   const LAMPORTS_PER_SOL = 1_000_000_000;
   const sol = amount / LAMPORTS_PER_SOL;
@@ -27,7 +31,10 @@ export const notificationBuilder = ({
     createNotificationInTable(
       `${sol} SOL Sent`,
       `You have sent ${sol} SOL to ${wallet}`,
-      userId
+      userId,
+      true,
+      date,
+      walletId
     )
       .then((res) => {
         console.log(res);
@@ -48,7 +55,10 @@ export const notificationBuilder = ({
     createNotificationInTable(
       `${sol} SOL Received`,
       `You have received ${sol} SOL from ${wallet}`,
-      userId
+      userId,
+      false,
+      date,
+      walletId
     )
       .then((res) => {
         console.log(res);

@@ -1,5 +1,6 @@
 import { addWallet } from "../../controller/secure/addWallet";
 import { deleteWallet } from "../../controller/secure/deleteWallet";
+import { getNotifications } from "../../controller/secure/getNotifications";
 import { getWallets } from "../../controller/secure/getWallets";
 import { handleErrors } from "./../../middleware/validation/handleInputValidationErrors";
 import {
@@ -19,4 +20,5 @@ router.delete(
   handleErrors,
   deleteWallet
 );
+router.get("/notifications", getNotifications)
 export default router;

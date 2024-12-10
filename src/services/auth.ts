@@ -12,3 +12,13 @@ export const createAccessToken = ({ email, id }: IUser) => {
 
   return token;
 };
+
+export const createHeliusJwt = () => {
+  const token = jwt.sign(
+    {
+      appName: "WatchLana",
+    },
+    process.env.ACCESS_TOKEN_SECRET as string
+  );
+  return token;
+};

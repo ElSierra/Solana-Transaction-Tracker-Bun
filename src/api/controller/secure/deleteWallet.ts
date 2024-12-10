@@ -1,42 +1,51 @@
 import knex from "../../../../db/knex";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../../../util/sendResponse";
 import { HttpStatusCode } from "axios";
 import { recheckBalanceAndUpdate } from "../../../util/recheckBalanceAndUpdate";
-export const deleteWallet = async (req: Request, res: Response) => {
-  const { id } = req.body;
-  const wallet = await knex("wallets").select("*").where({
-    id,
-    user_id: req.user?.id,
-  });
-  if (!wallet.length) {
-    return sendResponse({
-      res,
-      statusCode: HttpStatusCode.NotFound,
-      message: "Wallet not found",
+export const deleteWallet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.body;
+    const wallet = await knex("wallets").select("*").where({
+      id,
+      user_id: req.user?.id,
     });
-  }
-  const deleteRes = await knex("wallets").delete().where({ id });
+    if (!wallet.length) {
+      return sendResponse({
+        res,
+        statusCode: HttpStatusCode.NotFound,
+        message: "Wallet not found",
+      });
+    }
+    const deleteRes = await knex("wallets").delete().where({ id });
 
-  if (!deleteRes) {
-    return sendResponse({
-      res,
-      statusCode: HttpStatusCode.InternalServerError,
-      message: "Error deleting wallet",
-    });
-  }
-  const balance = await recheckBalanceAndUpdate(req.user?.id as string);
+    if (!deleteRes) {
+      return sendResponse({
+        res,
+        statusCode: HttpStatusCode.InternalServerError,
+        message: "Error deleting wallet",
+      });
+    }
+    const balance = await recheckBalanceAndUpdate(req.user?.id as string);
 
-  if (!balance) {
+    console.log("🚀 ~ file: deleteWallet.ts:36 ~ balance", balance);
+    if (!balance) {
+      return sendResponse({
+        res,
+        statusCode: HttpStatusCode.InternalServerError,
+        message: "Error updating balance",
+      });
+    }
     return sendResponse({
       res,
-      statusCode: HttpStatusCode.InternalServerError,
-      message: "Error updating balance",
+      statusCode: HttpStatusCode.Ok,
+      message: "Wallet deleted successfully",
     });
+  } catch (error) {
+    next(error);
   }
-  return sendResponse({
-    res,
-    statusCode: HttpStatusCode.Ok,
-    message: "Wallet deleted successfully",
-  });
 };

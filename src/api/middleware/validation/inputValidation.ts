@@ -26,3 +26,12 @@ export const addWalletValidation = [
     .withMessage("Wallet address must be a valid Solana address"),
   body("emojiId").isInt().withMessage("Emoji ID must be an integer"),
 ];
+
+
+export const deleteWalletValidation = [
+  body("id")
+    .isString()
+    .withMessage("Wallet ID must be a string")
+    .notEmpty()
+    .withMessage("Wallet ID cannot be empty"),
+];

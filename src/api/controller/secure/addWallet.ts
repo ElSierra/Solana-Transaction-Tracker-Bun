@@ -5,6 +5,7 @@ import { getWalletBalanceByUserId } from "../../../util/getWalletBalanceByUserId
 import { sendResponse } from "../../../util/sendResponse";
 import knex from "../../../../db/knex";
 import { recheckBalanceAndUpdate } from "../../../util/recheckBalanceAndUpdate";
+import { editWebHook } from "../../../util/editWebHook";
 
 export const addWallet = async (
   req: Request,
@@ -80,6 +81,7 @@ export const addWallet = async (
     //accumulate the wallets balance
 
     await recheckBalanceAndUpdate(id as string);
+    await editWebHook()
 
     res.status(201).json({
       message: "Wallet added successfully",

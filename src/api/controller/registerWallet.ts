@@ -1,23 +1,25 @@
 import axios from "axios";
 import type { Request, Response } from "express";
-export const registerHandler = async (req: Request, res: Response) => {
-  const { wallet, userId } = req.body;
-
-  console.log(wallet, userId);
+import { createHeliusJwt } from "../../services/auth";
+export const registerHandler = async () => {
+  const headerJwt = createHeliusJwt();
+  console.log(headerJwt);
 
   try {
     const response = await axios.post(
-      `https://api.helius.xyz/v0/webhooks?api-key=${Bun.env.HELIIUS_KEY}`,
+      `https://api.helius.xyz/v0/webhooks?api-key=${Bun.env.HELIUS_KEY}`,
       {
-        webhookURL: "",
+        webhookURL:
+          "https://webhook.site/e584618c-b779-4f97-9260-9103cc16c4b0",
         transactionTypes: ["TRANSFER"],
-        accountAddresses: [""],
+        accountAddresses: ["DrVDpsqqYc1R4LJf5oj83js7qtXGvnqtPwwEk2Vibxmz"],
         webhookType: "enhanced", // "rawDevnet"
         txnStatus: "all", // success/failed
       },
       {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${headerJwt}`,
         },
       }
     );
@@ -26,3 +28,7 @@ export const registerHandler = async (req: Request, res: Response) => {
     console.log(error.response.data);
   }
 };
+
+registerHandler().then(() => {
+  console.log("Webhook registered successfully");
+});

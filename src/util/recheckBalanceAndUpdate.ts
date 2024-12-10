@@ -32,10 +32,8 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
   }
 
   const currentBalance = await getWalletBalanceByUserId(id);
+  console.log("🚀 ~ file: recheckBalanceAndUpdate.ts:35 ~ recheckBalanceAndUpdate ~ currentBalance:", currentBalance)
 
-  if (!currentBalance) {
-    throw new Error("Error getting balance");
-  }
 
   const created = await knex("balance").insert({
     user_id: id,

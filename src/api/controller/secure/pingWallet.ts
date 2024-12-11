@@ -39,6 +39,8 @@ export const pingWallet = async (
     }
     const myTransfer: any[] = [];
     const accountAddresses = accountData.map((data: any) => data.account);
+    console.log("🚀 ~ file: pingWallet.ts:42 ~ accountAddresses:", accountAddresses)
+
     knex("wallets")
       .whereIn("address", accountAddresses)
       .select("*")

@@ -23,7 +23,8 @@ export const getNotifications = async (
         createdAt: "notification.created_at",
         walletId: "wallets.id",
         walletName: "wallets.name",
-      });
+      })
+      .orderBy("notification.created_at", "desc");
 
     console.log(
       "🚀 ~ file: getNotifications.ts:7 ~ getNotifications ~ notifications:",

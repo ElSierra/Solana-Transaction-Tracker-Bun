@@ -24,6 +24,8 @@ export const getWallets = async (
         walletBalance: "balance",
         walletAddress: "address",
         walletBalanceUSD: "usd_balance",
+        usdtBalance: "usdt",
+        usdcBalance: "usdc",
         // Rename the "balance" column to "walletBalance"
         createdAt: "created_at",
       })

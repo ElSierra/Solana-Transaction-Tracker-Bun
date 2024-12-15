@@ -53,15 +53,30 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
     currentBalance
   );
   const usdtBalance = currentBalance?.total_usdt * USDT_PRICE;
-  const usdcBalance = currentBalance?.total_usdc * USDC_PRICE;
+  console.log(
+    "🚀 ~ file: recheckBalanceAndUpdate.ts:56 ~ recheckBalanceAndUpdate ~ usdtBalance:",
+    usdtBalance
+  );
 
+  const usdcBalance = currentBalance?.total_usdc * USDC_PRICE;
+  console.log(
+    "🚀 ~ file: recheckBalanceAndUpdate.ts:57 ~ recheckBalanceAndUpdate ~ usdcBalance:",
+    usdcBalance
+  );
+
+  const total_balance_usd =
+    (currentBalance?.total_balance * SOL_PRICE) + usdtBalance + usdcBalance;
+  console.log(
+    "🚀 ~ file: recheckBalanceAndUpdate.ts:61 ~ recheckBalanceAndUpdate ~ total_balance_usd:",
+    total_balance_usd
+  );
   const created = await knex("balance").insert({
     user_id: id,
     total_balance:
       currentBalance?.total_balance +
       usdtBalance / SOL_PRICE +
       usdcBalance / SOL_PRICE,
-    total_balance_usd: currentBalance * SOL_PRICE + usdtBalance + usdcBalance,
+    total_balance_usd,
   });
 
   if (!created) {

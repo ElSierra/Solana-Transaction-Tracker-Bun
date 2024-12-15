@@ -4,20 +4,20 @@ import {
   createSolanaRpc,
   KeyPairSigner,
 } from "@solana/web3.js";
-import axios from "axios";
+import axios, { get } from "axios";
 
 const COINS_MINT: Record<string, Address> = {
   USDT: address("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
 };
 
-const rpc = createSolanaRpc("https://api.mainnet-beta.solana.com");
+const rpc = createSolanaRpc(Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com");
 
 export const getTokenBalance = async (
   tokenAddress: string,
   walletAddress: string
 ) => {
   const response = await axios({
-    url: `https://api.mainnet-beta.solana.com`,
+    url: Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com",
     method: "post",
     headers: { "Content-Type": "application/json" },
     data: [

@@ -6,6 +6,7 @@ import { sendResponse } from "../../../util/sendResponse";
 import knex from "../../../../db/knex";
 import { recheckBalanceAndUpdate } from "../../../util/recheckBalanceAndUpdate";
 import { editWebHook } from "../../../util/editWebHook";
+import { getTokenBalance } from "../../../util/getTokenUSDTBalance";
 
 export const addWallet = async (
   req: Request,
@@ -63,6 +64,9 @@ export const addWallet = async (
     }
 
     const balance = await getSolBalance(req.body.walletAddress);
+    const usdt = await getTokenBalance("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", req.body.walletAddress);
+    const usdc = await getTokenBalance("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", req.body.walletAddress);
+  
     console.log("🚀 ~ file: addWallet.ts:50 ~ balance:", balance);
 
     console.log({
@@ -81,6 +85,8 @@ export const addWallet = async (
       emojiId: req.body.emojiId,
       currency: "SOL",
       balance,
+      usdt: Number(usdt||0),
+      usdc: Number(usdc||0),
       usd_balance: balance * SOL_PRICE,
     });
     if (!insertWallet) {

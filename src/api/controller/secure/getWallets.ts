@@ -54,7 +54,7 @@ export const getWallets = async (
       prevBalanceUSD: balance[1].total_balance_usd || 0,
       currentBalance: balance[0].total_balance || 0,
       currentBalanceUSD: balance[0].total_balance_usd || 0,
-      wallets,
+      wallets: wallets.reverse(),
     };
     console.log("🚀 ~ file: getWallets.ts:24 ~ wallets", wallets);
     return sendResponse({

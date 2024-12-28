@@ -18,7 +18,7 @@ export const sendUserNotification = async (
       contents: {
         en: message.content,
       },
-      android_accent_color: "FF0000",
+      android_accent_color: sentOut ? "FF0000" : "00FF00",
       small_icon: sentOut
         ? "sent_icon"
         : sentOut === false

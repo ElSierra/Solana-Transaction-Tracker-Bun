@@ -1,37 +1,65 @@
 import axios from "axios";
 
-export const getSOLPriceUSD = async () => {
-  try {
-    const solPrice = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
-    );
+// Cache variables for prices and last check times
+interface PriceCache {
+  price: number;
+  lastChecked: number;
+}
 
-    return Number(solPrice.data.solana.usd);
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const priceCache: Record<string, PriceCache> = {
+  solana: { price: 0, lastChecked: 0 },
+  tether: { price: 0, lastChecked: 0 },
+  "usd-coin": { price: 0, lastChecked: 0 },
+};
+
+// Helper function to check if cache is still valid
+const isCacheValid = (coinId: string): boolean => {
+  const now = Date.now();
+  return now - priceCache[coinId].lastChecked < CACHE_DURATION;
+};
+
+// Helper function to fetch price from API
+const fetchCoinPrice = async (coinId: string): Promise<number> => {
+  try {
+    const response = await axios.get(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`
+    );
+    const price = Number(response.data[coinId].usd);
+
+    // Update cache
+    priceCache[coinId] = {
+      price,
+      lastChecked: Date.now(),
+    };
+
+    return price;
   } catch (error) {
-    return 0;
+    // If error occurs, return last known price or 0
+    return priceCache[coinId].price || 0;
   }
 };
 
-export const getUSDTPrice = async () => {
-  try {
-    const usdtPrice = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=usd"
-    );
-
-    return Number(usdtPrice.data.tether.usd);
-  } catch (error) {
-    return 0;
+export const getSOLPriceUSD = async (): Promise<number> => {
+  if (isCacheValid("solana")) {
+    return priceCache["solana"].price;
   }
-}
 
-export const getUSDCPrice = async () => {
-  try {
-    const usdcPrice = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=usd"
-    );
+  return fetchCoinPrice("solana");
+};
 
-    return Number(usdcPrice.data["usd-coin"].usd);
-  } catch (error) {
-    return 0;
+export const getUSDTPrice = async (): Promise<number> => {
+  if (isCacheValid("tether")) {
+    return priceCache["tether"].price;
   }
-}
+
+  return fetchCoinPrice("tether");
+};
+
+export const getUSDCPrice = async (): Promise<number> => {
+  if (isCacheValid("usd-coin")) {
+    return priceCache["usd-coin"].price;
+  }
+
+  return fetchCoinPrice("usd-coin");
+};

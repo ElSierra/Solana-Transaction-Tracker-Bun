@@ -26,26 +26,62 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
 
   console.log("🚀 ~ file: recheckBalanceAndUpdate.ts:12 ~ wallet", wallet);
 
-  for (let i = 0; i < wallet.length; i++) {
-    const balance = await getSolBalance(wallet[i].address);
-    const usdt = await getTokenBalance(
-      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-      wallet[i].address
-    );
-    // const usdc = await getTokenBalance(
-    //   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    //   wallet[i].address
-    // );
+  // Process wallets in batches to respect rate limits
+  const batchSize = 7; // 7 wallets * 2 API calls = 14 requests (safely under 15/second)
+  const walletUpdates: Array<{
+    address: string;
+    balance: number;
+    usd_balance: number;
+    usdt: number;
+  }> = [];
 
-    await knex("wallets")
-      .where("address", wallet[i].address)
-      .update({
-        balance,
-        usd_balance: balance * SOL_PRICE,
-        usdt: Number(usdt || 0),
-        // usdc: Number(usdc || 0),
-      });
+  for (let i = 0; i < wallet.length; i += batchSize) {
+    const batch = wallet.slice(i, i + batchSize);
+
+    const batchUpdates = await Promise.all(
+      batch.map(async (w) => {
+        const [balance, usdt] = await Promise.all([
+          getSolBalance(w.address),
+          getTokenBalance(
+            "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+            w.address
+          ),
+          // Uncomment when ready to use USDC
+          // getTokenBalance(
+          //   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          //   w.address
+          // ),
+        ]);
+
+        return {
+          address: w.address,
+          balance,
+          usd_balance: balance * SOL_PRICE,
+          usdt: Number(usdt || 0),
+          // usdc: Number(usdc || 0),
+        };
+      })
+    );
+
+    walletUpdates.push(...batchUpdates);
+
+    // Add a small delay between batches if there are more batches to process
+    if (i + batchSize < wallet.length) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   }
+
+  // Batch update all wallets in a single transaction
+  await knex.transaction(async (trx) => {
+    for (const update of walletUpdates) {
+      await trx("wallets").where("address", update.address).update({
+        balance: update.balance,
+        usd_balance: update.usd_balance,
+        usdt: update.usdt,
+        // usdc: update.usdc,
+      });
+    }
+  });
 
   const currentBalance = await getWalletBalanceByUserId(id);
   console.log(
@@ -65,7 +101,7 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
   );
 
   const total_balance_usd =
-    (currentBalance?.total_balance * SOL_PRICE) + usdtBalance + usdcBalance;
+    currentBalance?.total_balance * SOL_PRICE + usdtBalance + usdcBalance;
   console.log(
     "🚀 ~ file: recheckBalanceAndUpdate.ts:61 ~ recheckBalanceAndUpdate ~ total_balance_usd:",
     total_balance_usd

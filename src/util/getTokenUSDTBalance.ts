@@ -1,47 +1,37 @@
-import {
-  address,
-  Address,
-  createSolanaRpc,
-  KeyPairSigner,
-} from "@solana/web3.js";
-import axios, { get } from "axios";
-
-const COINS_MINT: Record<string, Address> = {
-  USDT: address("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
-};
-
-const rpc = createSolanaRpc(Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com");
+import axios from "axios";
+import { rateLimitedCall } from "./rateLimiter";
 
 export const getTokenBalance = async (
   tokenAddress: string,
   walletAddress: string
 ) => {
-  const response = await axios({
-    url: Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com",
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    data: [
-      {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getTokenAccountsByOwner",
-        params: [
-          walletAddress,
-          {
-            mint: tokenAddress,
-          },
-          {
-            encoding: "jsonParsed",
-          },
-        ],
-      },
-    ],
+  return rateLimitedCall(async () => {
+    const response = await axios({
+      url: Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com",
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      data: [
+        {
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getTokenAccountsByOwner",
+          params: [
+            walletAddress,
+            {
+              mint: tokenAddress,
+            },
+            {
+              encoding: "jsonParsed",
+            },
+          ],
+        },
+      ],
+    });
+
+    return response?.data[0]?.result?.value[0]?.account?.data?.parsed?.info
+      ?.tokenAmount?.uiAmountString;
   });
-
-  return response?.data[0]?.result?.value[0]?.account?.data?.parsed?.info
-    ?.tokenAmount?.uiAmountString;
 };
-
 
 // import { Connection, PublicKey } from "solana-web3-old"
 // import { getAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";

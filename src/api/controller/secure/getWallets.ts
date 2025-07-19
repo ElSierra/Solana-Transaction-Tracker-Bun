@@ -64,6 +64,8 @@ export const getWallets = async (
       data: walletWithBalance,
     });
   } catch (e) {
+    console.log("🚀 ~ error occurred:", e)
+
     next(e);
   }
 };

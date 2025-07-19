@@ -35,6 +35,8 @@ const fetchCoinPrice = async (coinId: string): Promise<number> => {
 
     return price;
   } catch (error) {
+    console.log("🚀 ~ fetchCoinPrice ~ error:", error)
+
     // If error occurs, return last known price or 0
     return priceCache[coinId].price || 0;
   }

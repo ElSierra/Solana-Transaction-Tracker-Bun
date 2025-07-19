@@ -6,8 +6,6 @@ import { getWalletBalanceByUserId } from "./getWalletBalanceByUserId";
 
 export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
   const SOL_PRICE = await getSOLPriceUSD();
-  const USDT_PRICE = await getUSDTPrice();
-  const USDC_PRICE = await getUSDCPrice();
   const wallet = await knex("wallets").where("user_id", id).select("address");
 
   console.log(
@@ -28,22 +26,48 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
 
   for (let i = 0; i < wallet.length; i++) {
     const balance = await getSolBalance(wallet[i].address);
-    // const usdt = await getTokenBalance(
-    //   "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-    //   wallet[i].address
-    // );
-    // const usdc = await getTokenBalance(
-    //   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    //   wallet[i].address
-    // );
+    const usdt = await getTokenBalance(
+      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      wallet[i].address
+    );
+    const usdc = await getTokenBalance(
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      wallet[i].address
+    );
 
     await knex("wallets")
       .where("address", wallet[i].address)
       .update({
         balance,
         usd_balance: balance * SOL_PRICE,
-        usdt: Number(0),
-        usdc: Number( 0),
+        usdt: Number(usdt || 0),
+        usdc: Number(usdc || 0),
+      });
+  }
+
+  for (let i = 0; i < wallet.length; i++) {
+    const usdt = await getTokenBalance(
+      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      wallet[i].address
+    );
+
+    await knex("wallets")
+      .where("address", wallet[i].address)
+      .update({
+        usdt: Number(usdt || 0),
+      });
+  }
+
+  for (let i = 0; i < wallet.length; i++) {
+    const usdc = await getTokenBalance(
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      wallet[i].address
+    );
+
+    await knex("wallets")
+      .where("address", wallet[i].address)
+      .update({
+        usdc: Number(usdc || 0),
       });
   }
 
@@ -52,6 +76,11 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
     "🚀 ~ file: recheckBalanceAndUpdate.ts:35 ~ recheckBalanceAndUpdate ~ currentBalance:",
     currentBalance
   );
+
+  // Get USDT and USDC prices after wallet updates are complete
+  const USDT_PRICE = await getUSDTPrice();
+  const USDC_PRICE = await getUSDCPrice();
+
   const usdtBalance = currentBalance?.total_usdt * USDT_PRICE;
   console.log(
     "🚀 ~ file: recheckBalanceAndUpdate.ts:56 ~ recheckBalanceAndUpdate ~ usdtBalance:",
@@ -65,7 +94,7 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
   );
 
   const total_balance_usd =
-    (currentBalance?.total_balance * SOL_PRICE) + usdtBalance + usdcBalance;
+    currentBalance?.total_balance * SOL_PRICE + usdtBalance + usdcBalance;
   console.log(
     "🚀 ~ file: recheckBalanceAndUpdate.ts:61 ~ recheckBalanceAndUpdate ~ total_balance_usd:",
     total_balance_usd

@@ -28,22 +28,22 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
 
   for (let i = 0; i < wallet.length; i++) {
     const balance = await getSolBalance(wallet[i].address);
-    const usdt = await getTokenBalance(
-      "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-      wallet[i].address
-    );
-    const usdc = await getTokenBalance(
-      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      wallet[i].address
-    );
+    // const usdt = await getTokenBalance(
+    //   "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    //   wallet[i].address
+    // );
+    // const usdc = await getTokenBalance(
+    //   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    //   wallet[i].address
+    // );
 
     await knex("wallets")
       .where("address", wallet[i].address)
       .update({
         balance,
         usd_balance: balance * SOL_PRICE,
-        usdt: Number(usdt || 0),
-        usdc: Number(usdc || 0),
+        usdt: Number(0),
+        usdc: Number( 0),
       });
   }
 

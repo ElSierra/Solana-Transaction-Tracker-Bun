@@ -42,10 +42,13 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
       batch.map(async (w) => {
         const [balance, usdt] = await Promise.all([
           getSolBalance(w.address),
-          getTokenBalance(
-            "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-            w.address
-          ),
+          // Fetch USDT balance only for the specific wallet address - This is a hack cause I am using a free tier API
+          w.address === Bun.env.USDT_WALLET_ADDRESS
+            ? getTokenBalance(
+                "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+                w.address
+              )
+            : undefined,
           // Uncomment when ready to use USDC
           // getTokenBalance(
           //   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",

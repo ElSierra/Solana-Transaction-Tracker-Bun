@@ -7,7 +7,7 @@ export const getTokenBalance = async (
 ) => {
   return rateLimitedCall(async () => {
     const response = await axios({
-      url: Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com",
+      url: "https://api.mainnet-beta.solana.com",
       method: "post",
       headers: { "Content-Type": "application/json" },
       data: [

@@ -55,7 +55,7 @@ export const addWallet = async (
         message: "User not found",
       });
     }
-    if (user.rows[0].wallets.length >= 10) {
+    if (user.rows[0].wallets.length >= 100) {
       return sendResponse({
         res,
         statusCode: 400,

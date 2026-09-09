@@ -1,58 +1,23 @@
-import axios from "axios";
-import { rateLimitedCall } from "./rateLimiter";
+import { solanaRpcCall } from "./solanaRpc";
 
-export const getTokenBalance = async (
-  tokenAddress: string,
-  walletAddress: string
-) => {
-  return rateLimitedCall(async () => {
-    const response = await axios({
-      url: "https://api.mainnet-beta.solana.com",
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      data: [
-        {
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTokenAccountsByOwner",
-          params: [
-            walletAddress,
-            {
-              mint: tokenAddress,
-            },
-            {
-              encoding: "jsonParsed",
-            },
-          ],
-        },
-      ],
-    });
+interface TokenAccount {
+  account: { data: { parsed: { info: { tokenAmount: { uiAmountString: string } } } } };
+}
 
-    return response?.data[0]?.result?.value[0]?.account?.data?.parsed?.info
-      ?.tokenAmount?.uiAmountString;
-  });
+export const getTokenBalance = async (tokenAddress: string, walletAddress: string) => {
+  const result = await solanaRpcCall<{ value: TokenAccount[] }>("getTokenAccountsByOwner", [
+    walletAddress,
+    { mint: tokenAddress },
+    { encoding: "jsonParsed" },
+  ]);
+  if (!Array.isArray(result?.value)) throw new Error("Invalid token balance response");
+  // A wallet can own more than one account for the same mint.
+  const balance = result.value.reduce((total, entry) => {
+    const amount = entry?.account?.data?.parsed?.info?.tokenAmount?.uiAmountString;
+    if (amount == null || !Number.isFinite(Number(amount)) || Number(amount) < 0) {
+      throw new Error("Invalid token amount response");
+    }
+    return total + Number(amount);
+  }, 0);
+  return String(balance);
 };
-
-// import { Connection, PublicKey } from "solana-web3-old"
-// import { getAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-
-// export const getTokenBalance = async (
-//   tokenAddress: string,
-//   walletAddress: string
-// ) => {
-//   const connection = new Connection("https://api.mainnet-beta.solana.com");
-//   const walletPublicKey = new PublicKey(walletAddress);
-//   const tokenPublicKey = new PublicKey(tokenAddress);
-
-//   const accounts = await connection.getTokenAccountsByOwner(walletPublicKey, {
-//     mint: tokenPublicKey,
-//     programId: TOKEN_PROGRAM_ID,
-//   });
-
-//   if (accounts.value.length === 0) {
-//     return null;
-//   }
-
-//   const accountInfo = await getAccount(connection, accounts.value[0].pubkey);
-//   return accountInfo.amount.toString();
-// };

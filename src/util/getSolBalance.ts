@@ -1,16 +1,10 @@
-import { address, createSolanaRpc } from "@solana/web3.js";
-import { rateLimitedCall } from "./rateLimiter";
-
-const rpc = createSolanaRpc(
-  Bun.env.SOLANA_RPC || "https://api.mainnet-beta.solana.com"
-);
-const LAMPORTS_PER_SOL = 1_000_000_000; // 1 billion lamports per SOL
+import { address } from "@solana/web3.js";
+import { solanaRpcCall } from "./solanaRpc";
 
 export const getSolBalance = async (solAddress: string) => {
-  return rateLimitedCall(async () => {
-    const wallet = address(solAddress);
-    const { value: balance } = await rpc.getBalance(wallet).send();
-    console.log(`Balance: ${Number(balance) / LAMPORTS_PER_SOL} SOL`);
-    return Number(balance) / LAMPORTS_PER_SOL;
-  });
+  const { value } = await solanaRpcCall<{ value: number }>("getBalance", [address(solAddress)]);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error("Invalid SOL balance response");
+  }
+  return value / 1_000_000_000;
 };

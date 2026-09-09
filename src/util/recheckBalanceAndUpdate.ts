@@ -1,4 +1,5 @@
 import knex from "../../db/knex";
+import { positiveInteger } from "./rateLimiter";
 import { getSolBalance } from "./getSolBalance";
 import { getSOLPriceUSD, getUSDCPrice, getUSDTPrice } from "./getSolPriceUSD";
 import { getTokenBalance } from "./getTokenUSDTBalance";
@@ -27,7 +28,7 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
   console.log("🚀 ~ file: recheckBalanceAndUpdate.ts:12 ~ wallet", wallet);
 
   // Process wallets in batches to respect rate limits
-  const batchSize = 7; // 7 wallets * 2 API calls = 14 requests (safely under 15/second)
+  const batchSize = positiveInteger(Bun.env.SOLANA_WALLET_BATCH_SIZE, 2);
   const walletUpdates: Array<{
     address: string;
     balance: number;
@@ -68,10 +69,7 @@ export const recheckBalanceAndUpdate = async (id: string, isGet?: string) => {
 
     walletUpdates.push(...batchUpdates);
 
-    // Add a small delay between batches if there are more batches to process
-    if (i + batchSize < wallet.length) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
+    // The shared RPC queue paces every call, including calls from other users.
   }
 
   // Batch update all wallets in a single transaction
